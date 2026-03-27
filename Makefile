@@ -3,7 +3,7 @@
 
 EXEC = exec
 
-EXEC_OUTPUT = build/bin
+EXEC_OUTPUT = $(BUILD_DIR)/bin
 # set output to . for project root
 
 # directories
@@ -31,7 +31,9 @@ CFLAGS += -Wall -Wextra -O2 -std=c17 \
 CFILES = $(shell find $(SRC_DIR) -type f -iname "*.c")
 OBJFILES = $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/obj/%.o)
 
-.PHONY: clean
+# --- RULES ---
+
+.PHONY: all clean run
 
 all: exec
 
