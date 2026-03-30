@@ -18,6 +18,8 @@ CFLAGS =
 CPPFLAGS = 
 LDFLAGS = 
 
+default: run
+
 
 # --- Constants ---
 
@@ -34,8 +36,6 @@ OBJFILES = $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/obj/%.o)
 # --- RULES ---
 
 .PHONY: all clean run
-
-all: exec
 
 exec: $(OBJFILES)
 	mkdir -p $(EXEC_OUTPUT)
