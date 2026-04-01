@@ -2,7 +2,7 @@
 
 ## How to use
 
-the Makefile has 4 rules :
+the Makefile has 7 rules :
 - default : defaults to run
 - exec : builds the executable
 - clean : deletes the build directory and the executable
