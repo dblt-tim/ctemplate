@@ -23,7 +23,8 @@ CFLAGS =
 CPPFLAGS = 
 LDFLAGS = 
 
-default: run
+.PHONY: default
+default: all
 
 
 # --- Constants ---
@@ -47,7 +48,9 @@ HFILES_OUT = $(HFILES:$(SRC_DIR)/%.h=$(BUILD_DIR)/headers/%.h)
 
 # --- RULES ---
 
-.PHONY: all clean run
+.PHONY: all clean run lib dylib headers exec
+
+all: exec lib dylib headers
 
 exec: $(OBJFILES)
 	mkdir -p $(EXEC_OUTPUT)
@@ -70,7 +73,7 @@ clean:
 run: exec
 	./$(EXEC_OUTPUT)/$(EXEC)
 
-lib: $(OBJFILES)
+lib: $(OBJFILES) headers
 	mkdir -p $(LIB_OUTPUT)
 	ar rcs $(LIB_OUTPUT)/lib$(LIB).a $(OBJFILES)
 
@@ -78,7 +81,7 @@ $(BUILD_DIR)/headers/%.h: $(SRC_DIR)/%.h
 	@mkdir -p $(dir $@)
 	cp $< $@
 	
-dylib: $(OBJFILES)
+dylib: $(OBJFILES) headers
 	mkdir -p $(LIB_OUTPUT)
 	$(CC) -fPIC -shared $(LDFLAGS) $(OBJFILES) -o $(LIB_OUTPUT)/lib$(LIB).so
 	
