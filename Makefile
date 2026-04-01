@@ -19,7 +19,7 @@ BUILD_DIR = build
 CC = gcc
 
 # compilation flags
-CFLAGS = 
+CFLAGS = -std=c17
 CPPFLAGS = 
 LDFLAGS = 
 
@@ -29,7 +29,7 @@ default: all
 
 # --- Constants ---
 
-CFLAGS += -Wall -Wextra -O2 -std=c17 \
+CFLAGS += -Wall -Wextra -O2 \
     -Wfloat-equal \
     -Wshadow \
     -Wswitch-default \
