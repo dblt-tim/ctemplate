@@ -24,7 +24,7 @@ CPPFLAGS =
 LDFLAGS = 
 
 .PHONY: default
-default: all
+default: debug
 
 
 # --- Constants ---
@@ -40,7 +40,8 @@ CFLAGS += -Wall -Wextra -O2 \
 
 
 CFILES = $(shell find $(SRC_DIR) -type f -iname "*.c")
-OBJFILES = $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/obj/%.o)
+RELEASE_OBJS = $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/release/obj/%.o)
+DEBUG_OBJS = $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/debug/obj/%.o)
 HFILES = $(shell find $(SRC_DIR) -type f -iname "*.h")
 HFILES_OUT = $(HFILES:$(SRC_DIR)/%.h=$(BUILD_DIR)/headers/%.h)
 
@@ -48,17 +49,25 @@ HFILES_OUT = $(HFILES:$(SRC_DIR)/%.h=$(BUILD_DIR)/headers/%.h)
 
 # --- RULES ---
 
-.PHONY: all clean run lib dylib headers exec
+.PHONY: all clean run lib dylib headers exec debug
 
 all: exec lib dylib headers
 
-exec: $(OBJFILES)
+exec: $(RELEASE_OBJS)
 	mkdir -p $(EXEC_OUTPUT)
-	$(CC) $(LDFLAGS) $(OBJFILES) -o $(EXEC_OUTPUT)/$(EXEC)
+	$(CC) $(LDFLAGS) $(RELEASE_OBJS) -o $(EXEC_OUTPUT)/$(EXEC)
 	
-$(BUILD_DIR)/obj/%.o: $(SRC_DIR)/%.c
+debug: $(DEBUG_OBJS)
+	mkdir -p $(EXEC_OUTPUT)
+	$(CC) $(LDFLAGS) -g $(DEBUG_OBJS) -o $(EXEC_OUTPUT)/debug-$(EXEC)
+	
+$(BUILD_DIR)/release/obj/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	
+$(BUILD_DIR)/debug/obj/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(dir $@)
+	$(CC) -g $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 	
 clean:
 	@if [ -z "$(BUILD_DIR)" ] || [ "$(BUILD_DIR)" = "." ] || [ "$(BUILD_DIR)" = "/" ]; then \
@@ -73,16 +82,24 @@ clean:
 run: exec
 	./$(EXEC_OUTPUT)/$(EXEC)
 
-lib: $(OBJFILES) headers
+lib: $(RELEASE_OBJS) headers
 	mkdir -p $(LIB_OUTPUT)
-	ar rcs $(LIB_OUTPUT)/lib$(LIB).a $(OBJFILES)
+	ar rcs $(LIB_OUTPUT)/lib$(LIB).a $(RELEASE_OBJS)
 
 $(BUILD_DIR)/headers/%.h: $(SRC_DIR)/%.h
 	@mkdir -p $(dir $@)
 	cp $< $@
 	
-dylib: $(OBJFILES) headers
+dylib: $(RELEASE_OBJS) headers
 	mkdir -p $(LIB_OUTPUT)
-	$(CC) -fPIC -shared $(LDFLAGS) $(OBJFILES) -o $(LIB_OUTPUT)/lib$(LIB).so
+	$(CC) -fPIC -shared $(LDFLAGS) $(RELEASE_OBJS) -o $(LIB_OUTPUT)/lib$(LIB).so
 	
 headers: $(HFILES_OUT)
+
+dylib-debug: $(DEBUG_OBJS) headers
+	mkdir -p $(LIB_OUTPUT)
+	$(CC) -fPIC -shared $(LDFLAGS) $(DEBUG_OBJS) -o $(LIB_OUTPUT)/libdebug-$(LIB).so
+
+lib-debug: $(DEBUG_OBJS) headers
+	mkdir -p $(LIB_OUTPUT)
+	ar rcs $(LIB_OUTPUT)/libdebug-$(LIB).a $(DEBUG_OBJS)
