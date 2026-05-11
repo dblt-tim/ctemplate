@@ -8,8 +8,6 @@ LIB = mylib
 EXEC_OUTPUT = $(BUILD_DIR)/bin
 LIB_OUTPUT = $(BUILD_DIR)/lib
 HEADERS_OUTPUT = $(BUILD_DIR)/headers
-# set output to . for project root
-
 
 # directories
 SRC_DIR = source
